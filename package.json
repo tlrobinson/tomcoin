@@ -1,0 +1,25 @@
+{
+  "name": "lbb",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "big-integer": "^1.6.26",
+    "elliptic": "^6.4.0",
+    "express": "^4.16.2",
+    "immutable": "^3.8.2",
+    "jest": "^20.0.4",
+    "jsonlines": "^0.1.1",
+    "websocket-stream": "^5.1.1",
+    "yargs-parser": "^8.1.0"
+  },
+  "scripts": {
+    "start": "./bin/tomcoin -w $TOMCOIN_ARGS",
+    "test": "jest",
+    "install": "(cd frontend && yarn install)",
+    "postinstall": "yarn build",
+    "build": "babel src -d lib && (cd frontend && yarn build)"
+  }
+}

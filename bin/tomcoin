@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+const repl = require("repl");
+const parseArgs = require("yargs-parser");
+const express = require("express");
+
+const Node = require("../src/node");
+Node.TRANSPORT = require("../src/transport/websocket");
+
+const ARGS_CONFIG = {
+  alias: { p: "port", c: "connect", m: "mine", w: "wallet", a: "address" },
+  default: { port: process.env["PORT"] || 1337 },
+  number: ["port"],
+  array: ["connect", "addnode"],
+  boolean: ["mine", "wallet"]
+};
+
+async function start(options) {
+  if (options.wallet) {
+    options.server = startWalletServer(options);
+  }
+
+  const node = new Node(options);
+
+  console.log(`starting on port ${options.port}...`);
+  await node.start();
+
+  if (options.connect) {
+    console.log("connecting...", ...options.connect);
+    await Promise.all(options.connect.map(address => node.connect(address)));
+  }
+
+  if (options.mine) {
+    console.log("mining...");
+    node.startMining();
+  }
+
+  repl.start("> ").context.node = node;
+}
+
+function startWalletServer(options) {
+  const app = express();
+  const publicDir = __dirname + "/../frontend/build";
+  app.use(express.static(publicDir));
+  return app.listen(options.port, () => {
+    console.log(`wallet started at http://localhost:${options.port}/`);
+  });
+}
+
+start(parseArgs(process.argv.slice(2), ARGS_CONFIG)).then(null, console.error);
